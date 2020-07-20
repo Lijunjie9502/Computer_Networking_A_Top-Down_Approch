@@ -464,4 +464,155 @@ Content-Type: text/html
 
 ### 2.2.5 Web 缓存
 
+- **Web缓存器**(Web cache)也叫**代理服务器**(proxy server)
+  - ![客户通过Web缓存器请求对象](images/2020-07-20-10-22-22.png)
+  - 它是能够代表初始Web服务器来满足HTTP请求的网络实体
+  - Web缓存器有自己的磁盘存储空间，并在存储空间中保存最近请求过的对象的副本
+  - 可以配置用户的浏览器，使得用户的所有HTTP请求首先指向Web缓存器
 
+- Web缓存器是服务器同时又是客户
+  - 当它接收浏览器的请求并发回响应时，它是一个服务器
+  - 当它向初始服务器发出请求并接收响应时，它是一个客户
+
+- Web缓存器通常由ISP购买并安装
+
+- 在因特网上部署Web缓存器有两个原因
+  - Web缓存器可以大大减少对客户请求的响应时间
+  - Web缓存器能够大大减少一个机构的接入链路到因特网的通信量
+    - 通过减少通信量，该机构（如一家公司或者一所大学）就不必急于增加带宽，因此降低了费用
+    - 此外，Web缓存器能从整体上大大减低因特网上的Web流量，从而改善了所有应用的性能
+
+- 实践中的命中率(即由一个缓存器所满足的请求的比率)通常在 0.2-0.7 之间
+
+- 通过使用内容分发网络(Content Distribution Network, CDN) , Web缓存器正在因特网中发挥着越来越重要的作用
+  - CDN公司在因特网上安装了许多地理上分散的缓存器，因而使大量流量实现了本地化
+  - 有多个共享的CDN (例如Akamai和Lime- Hght)和专用的CDN (例如谷歌和微软)
+
+### 2.2.6 条件GET方法
+
+- HTTP协议有一种机制，允许缓存器证实它的对象是最新的。这种机制就是条件GET (conditional GET)方法
+  - 请求报文使用GET方法
+  - 请求报文中包含一个 “If-Modified-Since：” 首部行
+
+- Web服务器向缓存器发送具有被请求的对象的响应报文的 Last-Modified 指明了最后被修改的日期
+
+  ```html
+  HTTP/1.1 200 OK
+  Date: Sat, 8 Oct 2011 15:39:29
+  Server: Apache/I.3.0 （Unix）
+  Last-Modified: Wed, 7 Sep 2011 09:23:24
+  Content-Type: image/gif
+
+  (data data data data data ...）
+  ```
+
+  - 缓存器在存储该对象时会存储这个最后修改日期
+
+- 当此对象再次被请求时，Web 服务器可以发送一个条件 GET 执行最新检查
+
+  ```html
+  GET /fruit/kiwi.gif HTTP/1.1
+  Host: www.exotiquecuisine.com
+  If-Modified-Since: Wed, 7 Sep 2011 09:23:24
+  ```
+
+  - 该条件GET报文告诉服务器，仅当自指定日期之后该对象被修改过，才发送该对象
+  - 假设该对象自指定日期后没有被修改
+    - 接下来，Web服务器向该缓存器发送一个响应报文
+
+    ```html
+    HTTP/1.1 304 Not Modified
+    Date: Sat, 15 Oct 2011 15:39:29
+    Servers Apache/1.3.0 （Unix）
+
+    (empty entity body）
+    ```
+
+    - 该响应报文中没有包含所请求的对象
+      - 包含该对象只会浪费带宽，并增加用户感受到的响应时间，特别是如果该对象很大的时候更是如此
+    - 状态行中为304 Not Modified
+      - 告诉缓存器可以使用该对象，能向请求的浏览器转发它（该代理缓存器）缓存的该对象副本
+
+## 2.3 因特网中的电子邮件
+
+- 电子邮件是一种异步通信媒介
+  - 即当人们方便时就可以收发邮件，不必与他人的计划进行协调
+
+- ![因特网电子邮件系统的总体描述](images/2020-07-20-10-48-35.png)
+- ![Alice向Bob发送一条报文](images/2020-07-20-11-03-07.png)
+- 电子邮件的 3 个组成部分
+  - **用户代理**（user agent）
+    - 用户代理允许用户阅读、回复、转发、保存和撰写报文
+  - **邮件服务器**（mail server）
+    - 邮件服务器形成了电子邮件体系结构的核心
+    - 每个接收方在邮件服务器上有一个邮箱（mailbox）
+    - 一个典型的邮件发送过程是
+      - 从发送方的用户代理开始
+      - 传输到发送方的邮件服务器
+        - 如果Alice的服务器不能将邮件交付给Bob的服务器, Alice的邮件服务器在一个报文队列（message queue）中保持该报文并在以后尝试再次发送
+          - 通常每30分钟左右进行一次尝试
+          - 如果几天后仍不能成功，服务器就删除该报文并以电子邮件的形式通知发送方（Alice）
+          - 这意味着邮件并不在中间的某个邮件服务器存留
+      - 再传输到接收方的邮件服务器
+        - 然后在这里被分发到接收方的邮箱中
+  - **简单邮件传输协议** （Simple Mail Transfer Protocol, SMTP）
+    - SMTP是因特网电子邮件中主要的应用层协议
+    - 它使用TCP可靠数据传输服务，从发送方的邮件服务器向接收方的邮件服务器发送邮件
+    - 有两个部分
+      - 运行在发送方邮件服务器的客户端
+      - 运行在接收方邮件服务器的服务器端
+
+### 2.3.1 SMTP
+
+- RFC 5321给出了 SMTP 的定义。SMTP 是因特网电子邮件应用的核心
+- SMTP 是一种继承的技术
+  - 它限制所有邮件报文的体部分（不只是其首部）只能采用简单的 7 比特ASCII表示
+    - 即在用SMTP传送邮件之前，需要将二进制多媒体数据编码为ASCII码
+    - 并且在使用SMTP传输后要求将相应的ASCII码邮件解码还原为多媒体数据
+
+- 在SMTP客户（C）和SMTP服务器（S）之间交换报文脚本的例子
+
+  ```html
+  S: 220 hamburger.edu
+  C: HELO crepes.fr
+  S: 250 Hello crepes.fr, pleased to meet you
+  C: MAIL FROM: valice@crepes.fr>
+  S: 250 alice@crepes.fr ... Sender ok
+  C: RCPT TO: <bob@hamburger.edu>
+  S: 250 bob@hamburger.edu ... Recipient ok
+  C：DATA
+  S: 354 Enter mail, end with on a line by itself
+  C: Do you like ketchup?
+  C: How about pickles?
+  C: .
+  S: 250 Message accepted for delivery
+  C： QUIT
+  S: 221 hamburger.edu closing connection
+  ```
+
+  - 客户发送了 5 条命 令：HELO （是 HELLO 的缩写）、MAIL FROM, RCPT TO、DATA 以及 QUIT
+    - 这些命令都是自解释的
+  - 该客户通过发送一个只包含一个句点的行，向服务器指示该报文结束了
+  - 按照ASCII码的表示方法，每个报文以CRLF.CRLF结束，其中的CR和LF分别表示回车和换行
+  - SMTP用的是持续连接, 仅当所有邮件发送完后才发送QUIT
+
+### 2.3.2 与 HTTP 的对比
+
+- 相同点
+  - 两个协议都用于从一台主机向另一台主机传送文件
+  - 当进行文件传送时，持续的HTTP和SMTP都使用持续连接
+
+- 不同点
+  - HTTP 主要是一个**拉协议**（pull protocol）
+    - 用户使用HTTP从该服务器拉取信息
+  - SMTP 基本上是一个推协议（push protocol）
+    - 即发送邮件服务器把文件推向接收邮件服务器
+  - SMTP要求每个报文（包括它们的体）使用7比特ASCII码格式，HTTP 数据则不受这种限制
+  - 在处理一个既包含文本又包含图形（也可能是其他媒体类型）的 文档时
+    - HTTP把每个对象封装到它自己的HTTP响应报文中
+    - SMTP则把所有报文对象放在一个报文之中
+
+### 2.4.3 邮件报文格式
+
+- 首部位于报文体前面, 用空行（即回车换行） 进行分隔
+- 每个首部行包含了可读的文本，是由关键词后跟冒号及其值组成的
