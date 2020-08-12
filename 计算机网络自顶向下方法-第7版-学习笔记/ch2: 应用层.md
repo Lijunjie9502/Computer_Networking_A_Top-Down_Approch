@@ -18,9 +18,9 @@ export_on_save:
     - 搜索
     - 电子商务
   - 新的应用
-    - IP电话（VoIP
-    - IP视频会议（如Skype
-    - 用户生成 的视频分布（如YouTube
+    - IP电话（VoIP)
+    - IP视频会议（如Skype)
+    - 用户生成 的视频分布（如YouTube)
     - 点播电影（如Netflix）
     - 多方在线游戏
     - 新一代的社交网络
@@ -778,13 +778,13 @@ Content-Type: text/html
       - 例如 (relayl.bar.foo.com, 145.37.93.126, A) 就是一条类型 A 记录
     - 如果 Type = NS,则 Name 是个域(如foo.com), 而Value是个知道如何获得该域中主机IP地址的权威DNS服务器的主机名
       - 例如(foo.com, dns.foo.com, NS)就是一条类型为NS的记录
-  - 如果 Type = CNAME,则 Value 是别名为 Name 的主机对应的规范主机名
-    - 例如(foo.com, relayl.bar.foo.com, CNAME)就是一条 CNAME 类型的记录
-  - 如果 Type = MX, 则 Value 是个别名为 Name 的邮件服务器的规范主机名
-    - (foo.com, mail.bar.foo.com, MX)就是一条MX记录
-    - 通过使用MX记录，一个公司的邮件服务器和其他服务器(如它的Web服务器)可以使用相同的别名
-      - 为了获得邮件服务器的规范主机名，DNS客户应当请求一条MX记录；
-      - 而为了获得其他服务器的规范主机名,DNS客户应当请求CNAME记录
+    - 如果 Type = CNAME,则 Value 是别名为 Name 的主机对应的规范主机名
+      - 例如(foo.com, relayl.bar.foo.com, CNAME)就是一条 CNAME 类型的记录
+    - 如果 Type = MX, 则 Value 是个别名为 Name 的邮件服务器的规范主机名
+      - (foo.com, mail.bar.foo.com, MX)就是一条MX记录
+      - 通过使用MX记录，一个公司的邮件服务器和其他服务器(如它的Web服务器)可以使用相同的别名
+        - 为了获得邮件服务器的规范主机名，DNS客户应当请求一条MX记录；
+        - 而为了获得其他服务器的规范主机名,DNS客户应当请求CNAME记录
 
   - 如果服务器不是用于某主机名的权威服务器
     - 那么该服务器将包含一条类型为 NS 记录，该记录对应于包含主机名的域
